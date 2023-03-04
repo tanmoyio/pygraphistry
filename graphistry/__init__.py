@@ -1,4 +1,4 @@
-
+from graphistry.pipeline import Pipeline
 from graphistry.pygraphistry import (  # noqa: E402, F401
     client_protocol_hostname,
     protocol,
