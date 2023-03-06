@@ -99,6 +99,31 @@ class WriteToCsvStage(SinglePortStage):
         return node, input_stream[1]
 
 
+class WriteToParquetStage(SinglePortStage):
+    def __init__(self, c, filename):
+        super().__init__(c)
+        self.filename = filename
+    
+    @property
+    def name(self):
+        return "write-parquet"
+    
+    def supports_cpp_node(self):
+        return False
+
+    def accepted_types(self):
+        return (typing.Any, )
+
+    def on_data(self, message):
+        message.df.to_parquet(self.filename)
+        return message
+
+    def _build_single(self, builder, input_stream):
+        node = builder.make_node(self.unique_name, self.on_data)
+        builder.make_edge(input_stream[0], node)
+        return node, input_stream[1]
+
+
 class WriteToSplunkStage(SinglePortStage):
     def __init__(self, c, host, port, auth_token):
         super().__init__(c)
@@ -157,6 +182,7 @@ class Pipeline:
         'transform': TransformStage,
         'write-splunk': WriteToSplunkStage,
         'write-csv': WriteToCsvStage,
+        'write-parquet': WriteToParquetStage,
     }
     def __init__(self, debug=False):
 
